@@ -155,8 +155,8 @@ app.delete('/spaces/:id', (req, res) => {
     if (findIt) {
         const firstArr = spacesDB.slice(0, index);
         const secondArr = spacesDB.slice(index + 1);
-        var spacesDBe = [...firstArr, ...secondArr];     
-        res.send({ results: spacesDBe})                      
+        spacesDB = [...firstArr, ...secondArr];          // check this  index es el número que hay que volarse
+        res.send({ results: spacesDB})                      
         console.log("Succesfull DELETE")
     }
     else {
@@ -227,8 +227,8 @@ app.delete('/reservations/:id', (req, res) => {
         spacesDB[indexID].state= "free"
         const firstArr = reservationsDB.slice(0, index);
         const secondArr = reservationsDB.slice(index + 1);
-        var reservationsDBe = [...firstArr, ...secondArr];     
-        res.send({ results: reservationsDBe})                   
+        reservationsDB = [...firstArr, ...secondArr];          // check this  index es el número que hay que volarse
+        res.send({ results: reservationsDB})                   
         console.log("Succesfull DELETE")
     }
     else {
