@@ -156,6 +156,7 @@ app.delete('/spaces/:id', (req, res) => {
 
 });
 
+// GET
 app.get('/reservations', (req, res) => {
     res.status(200).send({
         results: reservationsDB
@@ -164,10 +165,64 @@ app.get('/reservations', (req, res) => {
 
 });
 
+
+// POST
 app.post('/reservations', (req, res) => {
+    const { licensePlate } = req.body;
+    const { checkIn } = req.body;
+    var spaceID = 0;
+    var spaceAvailable = false
+
+    for (var i = 0; i < spacesDB.length; i++) {
+        if (spacesDB[i].state == "free") {
+            spaceID = spacesDB[i].id;
+            spacesDB[i].state = "in-use"
+            spaceAvailable = true;
+            break
+        }
+    }
+
+    if(spaceAvailable){
+        var newReservation = { licensePlate: licensePlate, checkIn: checkIn, spaceID: spaceID}
+        reservationsDB.push(newReservation)
+        res.status(200).send({reservationsDB})
+        console.log("Succesfull POST")
+
+    }
+    else{
+        res.status(418).send({ message: "Not spaces available" })
+    }
 
 });
 
+// DELETE by ID
 app.delete('/reservations/:id', (req, res) => {
+    const id = req.params.id
+    var index = 0
+    var findIt = false
+    for (var i = 0; i < reservationsDB.length; i++) {
+        if (reservationsDB[i].idSpace == id) {
+            index = i;
+            findIt = true;
+        }
+    }
 
+    if (findIt) {
+        var indexID = 0;
+        for (var i = 0; i < spacesDB.length; i++) {
+            if (spacesDB[i].id == id) {
+                indexID = i;
+                break
+            }
+        }
+        spacesDB[indexID].state= "free"
+        const firstArr = reservationsDB.slice(0, index);
+        const secondArr = reservationsDB.slice(index + 1);
+        var reservationsDBe = [...firstArr, ...secondArr];     
+        res.send({ results: reservationsDBe})                      //Check this
+        console.log("Succesfull DELETE")
+    }
+    else {
+        res.status(418).send({ message: "ID not found, try another" })
+    }
 });
