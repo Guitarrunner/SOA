@@ -147,7 +147,7 @@ app.delete('/spaces/:id', (req, res) => {
         const firstArr = spacesDB.slice(0, index);
         const secondArr = spacesDB.slice(index + 1);
         var spacesDBe = [...firstArr, ...secondArr];     
-        res.send({ results: spacesDBe})                      //Check this
+        res.send({ results: spacesDBe})                      
         console.log("Succesfull DELETE")
     }
     else {
@@ -219,7 +219,7 @@ app.delete('/reservations/:id', (req, res) => {
         const firstArr = reservationsDB.slice(0, index);
         const secondArr = reservationsDB.slice(index + 1);
         var reservationsDBe = [...firstArr, ...secondArr];     
-        res.send({ results: reservationsDBe})                      //Check this
+        res.send({ results: reservationsDBe})                   
         console.log("Succesfull DELETE")
     }
     else {

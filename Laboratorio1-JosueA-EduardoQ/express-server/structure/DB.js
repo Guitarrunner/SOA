@@ -1,4 +1,4 @@
-export var spacesDB = [
+export const spacesDB = [
     {
        id:1,
        state: "free"       
@@ -9,7 +9,7 @@ export var spacesDB = [
      }
 ];
 
-export var reservationsDB = [
+export const reservationsDB = [
    {
       licensePlate: 123455,
       checkIn: "1212",
