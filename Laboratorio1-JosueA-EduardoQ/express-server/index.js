@@ -8,7 +8,16 @@ const app = express();
 const PORT = 8080;
 
 //Habilitar formato JSON y CORS al server
-app.use(express.json())
+app.use(express.json({
+    verify : (req, res, buf, encoding) => {
+        try {
+          JSON.parse(buf);
+        } catch(e) {
+          res.status(405).send('ko');
+          throw Error('invalid JSON');
+        }
+      }
+}))
 app.use(cors())
 
 //Si el servidor funciona, saluda
