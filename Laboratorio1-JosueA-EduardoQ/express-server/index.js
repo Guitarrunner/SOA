@@ -33,13 +33,11 @@ app.listen(
 
 
 app.get('/', (_, res) => {
-    console.log('Hello world');
     res.json({ message: 'Hello World' })
 });
 
 // GET
 app.get('/spaces', (req, res) => {
-    console.log("here")
     res.status(200).send({
         results: spacesDB
     });
@@ -214,6 +212,6 @@ app.delete('/reservations/:id', (req, res) => {
         res.send({ results: reservationsDB })
         console.log("Succesfull DELETE")
     } else {
-        res.status(404).send({ message: "ID not found, try another" })
+        res.status(404).send({ message: "ID not found" })
     }
 });
