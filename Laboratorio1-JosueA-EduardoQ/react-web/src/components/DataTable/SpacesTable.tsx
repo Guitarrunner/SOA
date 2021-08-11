@@ -23,7 +23,7 @@ const SpacesTable: React.FC<SpacesTableProps> = () => {
 
     return ( 
     <Table size="sm" variant="striped" colorScheme="teal">
-    <TableCaption>This WebApp consumes the GET, POST and PUT of the api/spaces endpoint</TableCaption>
+    <TableCaption>This WebApp consumes the GET, POST, PUT and DELETE of the api/spaces endpoint</TableCaption>
     <Thead>
       <Tr>
         <Th textAlign="center">Parking Spot</Th>
