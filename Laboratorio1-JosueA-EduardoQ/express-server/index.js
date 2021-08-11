@@ -1,22 +1,22 @@
-import { spacesDB } from "./structure/DB.js"; 
-import { reservationsDB } from "./structure/DB.js"; 
+import { spacesDB } from "./structure/DB.js";
+import { reservationsDB } from "./structure/DB.js";
 import express from "express";
 import cors from "cors";
 
 //Constantes de inicialización de servidor
 const app = express();
-const PORT = 8080;
+const PORT = 3005;
 
 //Habilitar formato JSON y CORS al server
 app.use(express.json({
-    verify : (req, res, buf, encoding) => {
+    verify: (req, res, buf, encoding) => {
         try {
-          JSON.parse(buf);
-        } catch(e) {
-          res.status(405).send('ko');
-          throw Error('invalid JSON');
+            JSON.parse(buf);
+        } catch (e) {
+            res.status(405).send('ko');
+            throw Error('invalid JSON');
         }
-      }
+    }
 }))
 app.use(cors())
 
@@ -71,9 +71,7 @@ app.get('/spaces/:id', (req, res) => {
             results: filteredData
         });
         console.log("Succesfull GET")
-    }
-
-    else {
+    } else {
         res.status(418).send({ message: "ID not found, try another" })
     }
 
@@ -89,17 +87,15 @@ app.post('/spaces/', (req, res) => {
     // Otra forma que puede ser más eficiente es tener una variable global que se guarde y cuando  
     // empiece la populación de la base solo suma +1, así nunca se reutilizan pero se desechan
     // IDs sin usa
-    while(!false){
-        if (index==spacesDB.length){
+    while (!false) {
+        if (index == spacesDB.length) {
             correct = true
             break
-        }
-        else {
-            if (spacesDB[index].id == newID){
-                newID= newID+1
+        } else {
+            if (spacesDB[index].id == newID) {
+                newID = newID + 1
                 index = 0
-            }
-            else {
+            } else {
                 index = index + 1
             }
         }
@@ -107,20 +103,20 @@ app.post('/spaces/', (req, res) => {
 
     var newSpace = { id: newID, state: state }
     spacesDB.push(newSpace)
-    res.status(200).send({spacesDB})
+    res.status(200).send({ spacesDB })
     console.log("Succesfull POST")
 
 });
 
 // PUT by ID
 app.put('/spaces/:id', (req, res) => {
-    
+
     const { state } = req.body;
     const id = req.params.id
-    
+
     var index = 0
     var findIt = false
-    
+
     for (var i = 0; i < spacesDB.length; i++) {
         if (spacesDB[i].id == id) {
             index = i;
@@ -130,10 +126,9 @@ app.put('/spaces/:id', (req, res) => {
 
     if (findIt) {
         spacesDB[index].state = state
-        res.send({ results: spacesDB})
+        res.send({ results: spacesDB })
         console.log("Succesfull PUT")
-    }
-    else {
+    } else {
         res.status(418).send({ message: "ID not found, try another" })
     }
 
@@ -155,11 +150,10 @@ app.delete('/spaces/:id', (req, res) => {
     if (findIt) {
         const firstArr = spacesDB.slice(0, index);
         const secondArr = spacesDB.slice(index + 1);
-        spacesDB = [...firstArr, ...secondArr];          // check this  index es el número que hay que volarse
-        res.send({ results: spacesDB})                      
+        spacesDB = [...firstArr, ...secondArr]; // check this  index es el número que hay que volarse
+        res.send({ results: spacesDB })
         console.log("Succesfull DELETE")
-    }
-    else {
+    } else {
         res.status(418).send({ message: "ID not found, try another" })
     }
 
@@ -191,14 +185,13 @@ app.post('/reservations', (req, res) => {
         }
     }
 
-    if(spaceAvailable){
-        var newReservation = { licensePlate: licensePlate, checkIn: checkIn, spaceID: spaceID}
+    if (spaceAvailable) {
+        var newReservation = { licensePlate: licensePlate, checkIn: checkIn, spaceID: spaceID }
         reservationsDB.push(newReservation)
-        res.status(200).send({reservationsDB})
+        res.status(200).send({ reservationsDB })
         console.log("Succesfull POST")
 
-    }
-    else{
+    } else {
         res.status(418).send({ message: "Not spaces available" })
     }
 
@@ -224,14 +217,13 @@ app.delete('/reservations/:id', (req, res) => {
                 break
             }
         }
-        spacesDB[indexID].state= "free"
+        spacesDB[indexID].state = "free"
         const firstArr = reservationsDB.slice(0, index);
         const secondArr = reservationsDB.slice(index + 1);
-        reservationsDB = [...firstArr, ...secondArr];          // check this  index es el número que hay que volarse
-        res.send({ results: reservationsDB})                   
+        reservationsDB = [...firstArr, ...secondArr]; // check this  index es el número que hay que volarse
+        res.send({ results: reservationsDB })
         console.log("Succesfull DELETE")
-    }
-    else {
+    } else {
         res.status(418).send({ message: "ID not found, try another" })
     }
 });
