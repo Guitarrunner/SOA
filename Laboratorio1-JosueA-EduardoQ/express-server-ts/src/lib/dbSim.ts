@@ -11,6 +11,57 @@ const spacesBy = (param, value) => {
     return result;
 };
 
+const paginatedSpaces = (pageSize, pageNum) => {
+    const begin = pageSize * (pageNum - 1);
+    const end = pageSize * pageNum;
+
+    const pageData = schema.spaces.slice(begin, end);
+
+    return pageData;
+};
+
+const paginate = (data) => (pageSize, pageNum) => {
+    const begin = pageSize * (pageNum - 1);
+    const end = pageSize * pageNum;
+
+    const pageData = data.slice(begin, end);
+
+    return pageData;
+};
+
+const orderSpaceBy = (filterParam) => {
+    var result = [];
+
+    var orderList = getOrderList(schema.spaces, filterParam);
+
+    for (let i = 0; i < orderList.length; i++) {
+        const element = orderList[i];
+
+        for (let j = 0; j < schema.spaces.length; j++) {
+            const space = schema.spaces[j];
+
+            if (space[filterParam] === element) {
+                result.push(space);
+            }
+        }
+    }
+
+    return { result, paginate: paginate(result) };
+};
+
+const getOrderList = (data, param) => {
+    var orderList = [];
+
+    for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        orderList.push(element[param]);
+    }
+
+    return orderList.sort((a, b) => {
+        return a - b;
+    });
+};
+
 const setSpaceState = (id, state) => {
     for (let i = 0; i < schema.spaces.length; i++) {
         const element = schema.spaces[i];
@@ -76,6 +127,8 @@ const db = {
     space: {
         get: {
             allSpaces,
+            paginatedSpaces,
+            orderSpaceBy,
             spacesBy,
             firstSpace
         },

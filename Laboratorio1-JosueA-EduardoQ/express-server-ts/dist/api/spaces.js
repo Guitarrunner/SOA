@@ -8,10 +8,34 @@ var dbSim_1 = __importDefault(require("../lib/dbSim"));
 var spacesApp = express_1.default();
 var lastId = dbSim_1.default.space.get.allSpaces().length;
 // GET
-spacesApp.get('/', function (_, res) {
-    var spaces = dbSim_1.default.space.get.allSpaces();
+spacesApp.get('/', function (req, res) {
+    var spaceData = [];
+    if (req.query['filter']) {
+        if (req.query['page']) {
+            spaceData = dbSim_1.default.space.get
+                .orderSpaceBy(req.query['filter'])
+                .paginate(10, req.query['page']);
+        }
+        else {
+            spaceData = dbSim_1.default.space.get
+                .orderSpaceBy(req.query['filter'])
+                .paginate(10, 1);
+        }
+    }
+    else if (req.query['page']) {
+        spaceData = dbSim_1.default.space.get.paginatedSpaces(10, req.query['page']);
+    }
+    else {
+        spaceData = dbSim_1.default.space.get.paginatedSpaces(10, 1);
+    }
     res.status(200).send({
-        results: spaces
+        results: spaceData
+    });
+    console.log('Succesfull GET');
+});
+spacesApp.get('/all', function (req, res) {
+    res.status(200).send({
+        results: dbSim_1.default.space.get.allSpaces()
     });
     console.log('Succesfull GET');
 });
