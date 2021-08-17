@@ -14,6 +14,42 @@ var spacesBy = function (param, value) {
     }
     return result;
 };
+var paginatedSpaces = function (pageSize, pageNum) {
+    var begin = pageSize * (pageNum - 1);
+    var end = pageSize * pageNum;
+    var pageData = schema.spaces.slice(begin, end);
+    return pageData;
+};
+var paginate = function (data) { return function (pageSize, pageNum) {
+    var begin = pageSize * (pageNum - 1);
+    var end = pageSize * pageNum;
+    var pageData = data.slice(begin, end);
+    return pageData;
+}; };
+var orderSpaceBy = function (filterParam) {
+    var result = [];
+    var orderList = getOrderList(schema.spaces, filterParam);
+    for (var i = 0; i < orderList.length; i++) {
+        var element = orderList[i];
+        for (var j = 0; j < schema.spaces.length; j++) {
+            var space = schema.spaces[j];
+            if (space[filterParam] === element) {
+                result.push(space);
+            }
+        }
+    }
+    return { result: result, paginate: paginate(result) };
+};
+var getOrderList = function (data, param) {
+    var orderList = [];
+    for (var i = 0; i < data.length; i++) {
+        var element = data[i];
+        orderList.push(element[param]);
+    }
+    return orderList.sort(function (a, b) {
+        return a - b;
+    });
+};
 var setSpaceState = function (id, state) {
     for (var i = 0; i < schema.spaces.length; i++) {
         var element = schema.spaces[i];
@@ -75,6 +111,8 @@ var db = {
     space: {
         get: {
             allSpaces: allSpaces,
+            paginatedSpaces: paginatedSpaces,
+            orderSpaceBy: orderSpaceBy,
             spacesBy: spacesBy,
             firstSpace: firstSpace
         },
