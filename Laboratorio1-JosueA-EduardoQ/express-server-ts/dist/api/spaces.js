@@ -6,43 +6,75 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var dbSim_1 = __importDefault(require("../lib/dbSim"));
 var spacesApp = express_1.default();
-var lastId = dbSim_1.default.space.get.allSpaces().length;
+var lastId = dbSim_1.default.space.get.all().data.length;
 // GET
 spacesApp.get('/', function (req, res) {
-    var spaceData = [];
-    if (req.query['filter']) {
-        if (req.query['page']) {
-            spaceData = dbSim_1.default.space.get
-                .orderSpaceBy(req.query['filter'])
-                .paginate(10, req.query['page']);
+    var spaceData;
+    var _a = req.query, filterValue = _a.filterValue, order = _a.order, page = _a.page;
+    var filter = filterValue
+        ? filterValue.toString().split('-')[0]
+        : undefined;
+    var value = filterValue
+        ? filterValue.toString().split('-')[1]
+        : undefined;
+    if (filter && value) {
+        if (order) {
+            if (page) {
+                spaceData = dbSim_1.default.space.get
+                    .filterBy(filter, value)
+                    .orderBy(order)
+                    .paginate(10, page);
+            }
+            else {
+                spaceData = dbSim_1.default.space.get
+                    .filterBy(filter, value)
+                    .orderBy(order)
+                    .paginate(10, 1);
+            }
         }
         else {
-            spaceData = dbSim_1.default.space.get
-                .orderSpaceBy(req.query['filter'])
-                .paginate(10, 1);
+            if (page) {
+                spaceData = dbSim_1.default.space.get
+                    .filterBy(filter, value)
+                    .paginate(10, page);
+            }
+            else {
+                spaceData = dbSim_1.default.space.get
+                    .filterBy(filter, value)
+                    .paginate(10, 1);
+            }
         }
     }
-    else if (req.query['page']) {
-        spaceData = dbSim_1.default.space.get.paginatedSpaces(10, req.query['page']);
+    else if (order) {
+        if (page) {
+            spaceData = dbSim_1.default.space.get.orderBy(order).paginate(10, page);
+        }
+        else {
+            spaceData = dbSim_1.default.space.get.orderBy(order).paginate(10, 1);
+        }
+    }
+    else if (page) {
+        spaceData = dbSim_1.default.space.get.all().paginate(10, page);
     }
     else {
-        spaceData = dbSim_1.default.space.get.paginatedSpaces(10, 1);
+        spaceData = dbSim_1.default.space.get.all().paginate(10, 1);
     }
     res.status(200).send({
-        results: spaceData
+        results: spaceData.pageData,
+        hasNext: spaceData.hasNext
     });
     console.log('Succesfull GET');
 });
-spacesApp.get('/all', function (req, res) {
+spacesApp.get('/all', function (_, res) {
     res.status(200).send({
-        results: dbSim_1.default.space.get.allSpaces()
+        results: dbSim_1.default.space.get.all().data
     });
     console.log('Succesfull GET');
 });
 // GET by ID
 spacesApp.get('/:id', function (req, res) {
     var id = req.params.id;
-    var spacesData = dbSim_1.default.space.get.allSpaces();
+    var spacesData = dbSim_1.default.space.get.all().data;
     for (var i = 0; i < spacesData.length; i++) {
         if (spacesData[i].id == parseInt(id)) {
             res.send({
@@ -58,7 +90,7 @@ spacesApp.get('/:id', function (req, res) {
 spacesApp.post('/', function (_, res) {
     var newId = lastId + 1;
     lastId = newId;
-    var spacesData = dbSim_1.default.space.get.allSpaces();
+    var spacesData = dbSim_1.default.space.get.all().data;
     var newSpace = { id: newId, state: 'free' };
     spacesData.push(newSpace);
     res.status(200).send({ spacesData: spacesData });
@@ -69,7 +101,7 @@ spacesApp.post('/', function (_, res) {
 spacesApp.put('/:id', function (req, res) {
     var state = req.body.state;
     var id = parseInt(req.params.id);
-    var spacesData = dbSim_1.default.space.get.allSpaces();
+    var spacesData = dbSim_1.default.space.get.all().data;
     for (var i = 0; i < spacesData.length; i++) {
         if (spacesData[i].id === id) {
             spacesData[i].state = state;
@@ -85,7 +117,7 @@ spacesApp.put('/:id', function (req, res) {
 // DELETE
 spacesApp.delete('/:id', function (req, res) {
     var id = parseInt(req.params.id);
-    var spacesData = dbSim_1.default.space.get.allSpaces();
+    var spacesData = dbSim_1.default.space.get.all().data;
     for (var i = 0; i < spacesData.length; i++) {
         if (spacesData[i].id == id) {
             spacesData.splice(i, 1);

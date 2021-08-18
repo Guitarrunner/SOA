@@ -26,27 +26,38 @@ const paginate = (data) => (pageSize, pageNum) => {
 
     const pageData = data.slice(begin, end);
 
-    return pageData;
+    return { pageData, hasNext: data.length > end };
 };
 
-const orderSpaceBy = (filterParam) => {
+const orderBy = (data) => (orderParam) => {
     var result = [];
 
-    var orderList = getOrderList(schema.spaces, filterParam);
+    var orderList = getOrderList(data, orderParam);
 
     for (let i = 0; i < orderList.length; i++) {
         const element = orderList[i];
 
-        for (let j = 0; j < schema.spaces.length; j++) {
-            const space = schema.spaces[j];
+        for (let j = 0; j < data.length; j++) {
+            const space = data[j];
 
-            if (space[filterParam] === element) {
+            if (space[orderParam] === element) {
                 result.push(space);
             }
         }
     }
 
     return { result, paginate: paginate(result) };
+};
+
+const filterBy = (data) => (filterParam, filterValue) => {
+    var result = [];
+    for (let i = 0; i < data.length; i++) {
+        const space = data[i];
+        if (space[filterParam] === filterValue) {
+            result.push(space);
+        }
+    }
+    return { result, orderBy: orderBy(result), paginate: paginate(result) };
 };
 
 const getOrderList = (data, param) => {
@@ -95,8 +106,11 @@ const firstReservation = (param = undefined, value = undefined) => {
     }
 };
 
-const allSpaces = () => {
-    return schema.spaces;
+const all = (data) => () => {
+    return {
+        data,
+        paginate: paginate(data)
+    };
 };
 
 const allReservations = () => {
@@ -119,18 +133,20 @@ var schema = {
 const db = {
     reservation: {
         get: {
-            allReservations,
-            firstReservation
+            all: all(schema.reservations),
+            firstReservation,
+            filterBy: filterBy(schema.reservations),
+            orderBy: orderBy(schema.reservations)
         },
         commitReservations
     },
     space: {
         get: {
-            allSpaces,
-            paginatedSpaces,
-            orderSpaceBy,
+            all: all(schema.spaces),
+            orderBy: orderBy(schema.spaces),
             spacesBy,
-            firstSpace
+            firstSpace,
+            filterBy: filterBy(schema.spaces)
         },
         setSpaceState,
         commitSpaces

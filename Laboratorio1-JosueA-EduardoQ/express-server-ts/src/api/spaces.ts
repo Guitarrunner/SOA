@@ -3,37 +3,67 @@ import db from '../lib/dbSim';
 
 const spacesApp = express();
 
-var lastId = db.space.get.allSpaces().length;
+var lastId = db.space.get.all().data.length;
 
 // GET
 spacesApp.get('/', (req, res) => {
-    var spaceData = [];
+    var spaceData;
 
-    if (req.query['filter']) {
-        if (req.query['page']) {
-            spaceData = db.space.get
-                .orderSpaceBy(req.query['filter'])
-                .paginate(10, req.query['page']);
+    const { filterValue, order, page } = req.query;
+
+    const filter = filterValue
+        ? filterValue.toString().split('-')[0]
+        : undefined;
+    const value = filterValue
+        ? filterValue.toString().split('-')[1]
+        : undefined;
+
+    if (filter && value) {
+        if (order) {
+            if (page) {
+                spaceData = db.space.get
+                    .filterBy(filter, value)
+                    .orderBy(order)
+                    .paginate(10, page);
+            } else {
+                spaceData = db.space.get
+                    .filterBy(filter, value)
+                    .orderBy(order)
+                    .paginate(10, 1);
+            }
         } else {
-            spaceData = db.space.get
-                .orderSpaceBy(req.query['filter'])
-                .paginate(10, 1);
+            if (page) {
+                spaceData = db.space.get
+                    .filterBy(filter, value)
+                    .paginate(10, page);
+            } else {
+                spaceData = db.space.get
+                    .filterBy(filter, value)
+                    .paginate(10, 1);
+            }
         }
-    } else if (req.query['page']) {
-        spaceData = db.space.get.paginatedSpaces(10, req.query['page']);
+    } else if (order) {
+        if (page) {
+            spaceData = db.space.get.orderBy(order).paginate(10, page);
+        } else {
+            spaceData = db.space.get.orderBy(order).paginate(10, 1);
+        }
+    } else if (page) {
+        spaceData = db.space.get.all().paginate(10, page);
     } else {
-        spaceData = db.space.get.paginatedSpaces(10, 1);
+        spaceData = db.space.get.all().paginate(10, 1);
     }
 
     res.status(200).send({
-        results: spaceData
+        results: spaceData.pageData,
+        hasNext: spaceData.hasNext
     });
     console.log('Succesfull GET');
 });
 
-spacesApp.get('/all', (req, res) => {
+spacesApp.get('/all', (_, res) => {
     res.status(200).send({
-        results: db.space.get.allSpaces()
+        results: db.space.get.all().data
     });
     console.log('Succesfull GET');
 });
@@ -41,7 +71,7 @@ spacesApp.get('/all', (req, res) => {
 // GET by ID
 spacesApp.get('/:id', (req, res) => {
     const id = req.params.id;
-    var spacesData = db.space.get.allSpaces();
+    var spacesData = db.space.get.all().data;
 
     for (var i = 0; i < spacesData.length; i++) {
         if (spacesData[i].id == parseInt(id)) {
@@ -60,7 +90,7 @@ spacesApp.get('/:id', (req, res) => {
 spacesApp.post('/', (_, res) => {
     var newId = lastId + 1;
     lastId = newId;
-    var spacesData = db.space.get.allSpaces();
+    var spacesData = db.space.get.all().data;
 
     var newSpace = { id: newId, state: 'free' };
     spacesData.push(newSpace);
@@ -73,7 +103,7 @@ spacesApp.post('/', (_, res) => {
 spacesApp.put('/:id', (req, res) => {
     const { state } = req.body;
     const id = parseInt(req.params.id);
-    var spacesData = db.space.get.allSpaces();
+    var spacesData = db.space.get.all().data;
 
     for (var i = 0; i < spacesData.length; i++) {
         if (spacesData[i].id === id) {
@@ -91,7 +121,7 @@ spacesApp.put('/:id', (req, res) => {
 // DELETE
 spacesApp.delete('/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    var spacesData = db.space.get.allSpaces();
+    var spacesData = db.space.get.all().data;
 
     for (var i = 0; i < spacesData.length; i++) {
         if (spacesData[i].id == id) {

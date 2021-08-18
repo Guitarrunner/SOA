@@ -24,22 +24,32 @@ var paginate = function (data) { return function (pageSize, pageNum) {
     var begin = pageSize * (pageNum - 1);
     var end = pageSize * pageNum;
     var pageData = data.slice(begin, end);
-    return pageData;
+    return { pageData: pageData, hasNext: data.length > end };
 }; };
-var orderSpaceBy = function (filterParam) {
+var orderBy = function (data) { return function (orderParam) {
     var result = [];
-    var orderList = getOrderList(schema.spaces, filterParam);
+    var orderList = getOrderList(data, orderParam);
     for (var i = 0; i < orderList.length; i++) {
         var element = orderList[i];
-        for (var j = 0; j < schema.spaces.length; j++) {
-            var space = schema.spaces[j];
-            if (space[filterParam] === element) {
+        for (var j = 0; j < data.length; j++) {
+            var space = data[j];
+            if (space[orderParam] === element) {
                 result.push(space);
             }
         }
     }
     return { result: result, paginate: paginate(result) };
-};
+}; };
+var filterBy = function (data) { return function (filterParam, filterValue) {
+    var result = [];
+    for (var i = 0; i < data.length; i++) {
+        var space = data[i];
+        if (space[filterParam] === filterValue) {
+            result.push(space);
+        }
+    }
+    return { result: result, orderBy: orderBy(result), paginate: paginate(result) };
+}; };
 var getOrderList = function (data, param) {
     var orderList = [];
     for (var i = 0; i < data.length; i++) {
@@ -84,9 +94,12 @@ var firstReservation = function (param, value) {
         }
     }
 };
-var allSpaces = function () {
-    return schema.spaces;
-};
+var all = function (data) { return function () {
+    return {
+        data: data,
+        paginate: paginate(data)
+    };
+}; };
 var allReservations = function () {
     return schema.reservations;
 };
@@ -103,18 +116,20 @@ var schema = {
 var db = {
     reservation: {
         get: {
-            allReservations: allReservations,
-            firstReservation: firstReservation
+            all: all(schema.reservations),
+            firstReservation: firstReservation,
+            filterBy: filterBy(schema.reservations),
+            orderBy: orderBy(schema.reservations)
         },
         commitReservations: commitReservations
     },
     space: {
         get: {
-            allSpaces: allSpaces,
-            paginatedSpaces: paginatedSpaces,
-            orderSpaceBy: orderSpaceBy,
+            all: all(schema.spaces),
+            orderBy: orderBy(schema.spaces),
             spacesBy: spacesBy,
-            firstSpace: firstSpace
+            firstSpace: firstSpace,
+            filterBy: filterBy(schema.spaces)
         },
         setSpaceState: setSpaceState,
         commitSpaces: commitSpaces

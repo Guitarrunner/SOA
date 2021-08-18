@@ -3,26 +3,74 @@ import db from '../lib/dbSim';
 
 const reservationsApp = express();
 
-var lastId = db.reservation.get.allReservations().length;
+var lastId = db.reservation.get.all().data.length;
 
 // GET
-reservationsApp.get('/', (_, res) => {
-    var reservationsData = db.reservation.get.allReservations();
+reservationsApp.get('/', (req, res) => {
+    var reservationData;
+
+    const { filterValue, order, page } = req.query;
+
+    const filter = filterValue
+        ? filterValue.toString().split('-')[0]
+        : undefined;
+    const value = filterValue
+        ? filterValue.toString().split('-')[1]
+        : undefined;
+
+    if (filter && value) {
+        if (order) {
+            if (page) {
+                reservationData = db.reservation.get
+                    .filterBy(filter, value)
+                    .orderBy(order)
+                    .paginate(10, page);
+            } else {
+                reservationData = db.reservation.get
+                    .filterBy(filter, value)
+                    .orderBy(order)
+                    .paginate(10, 1);
+            }
+        } else {
+            if (page) {
+                reservationData = db.reservation.get
+                    .filterBy(filter, value)
+                    .paginate(10, page);
+            } else {
+                reservationData = db.reservation.get
+                    .filterBy(filter, value)
+                    .paginate(10, 1);
+            }
+        }
+    } else if (order) {
+        if (page) {
+            reservationData = db.reservation.get
+                .orderBy(order)
+                .paginate(10, page);
+        } else {
+            reservationData = db.reservation.get.orderBy(order).paginate(10, 1);
+        }
+    } else if (page) {
+        reservationData = db.reservation.get.all().paginate(10, page);
+    } else {
+        reservationData = db.reservation.get.all().paginate(10, 1);
+    }
 
     res.status(200).send({
-        results: reservationsData
+        results: reservationData.pageData,
+        hasNext: reservationData.hasNext
     });
     console.log('Succesfull GET');
 });
 
 // POST
 reservationsApp.post('/', (req, res) => {
-    var reservationsData = db.reservation.get.allReservations();
+    var reservationsData = db.reservation.get.all().data;
 
     const { licensePlate } = req.body;
     const checkIn = new Date().getTime().toString();
 
-    const spacesData = db.space.get.allSpaces();
+    const spacesData = db.space.get.all().data;
 
     if (spacesData.length === reservationsData.length) {
         res.status(404).send({ message: 'No spaces available' });
@@ -49,7 +97,7 @@ reservationsApp.post('/', (req, res) => {
 
 // DELETE by ID
 reservationsApp.delete('/:id', (req, res) => {
-    var reservationsData = db.reservation.get.allReservations();
+    var reservationsData = db.reservation.get.all().data;
 
     const id = req.params.id;
 
