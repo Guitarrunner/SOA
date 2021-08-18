@@ -12,10 +12,10 @@ spacesApp.get('/', (req, res) => {
     const { filterValue, order, page } = req.query;
 
     const filter = filterValue
-        ? filterValue.toString().split('-')[0]
+        ? filterValue.toString().split('_')[0]
         : undefined;
     const value = filterValue
-        ? filterValue.toString().split('-')[1]
+        ? filterValue.toString().split('_')[1]
         : undefined;
 
     if (filter && value) {
