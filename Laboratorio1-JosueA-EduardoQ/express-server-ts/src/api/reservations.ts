@@ -6,6 +6,16 @@ const reservationsApp = express();
 var lastId = db.reservation.get.allReservations().length;
 
 // GET
+/**
+ * @swagger
+ * /reservations/:
+ *   get:
+ *      summary: Devuelve la lista de todlas reservaciones disponibles
+ *      description: Devuelve la lista de reservaciones, en esta se pueden ver llas placas y horas de entrada.
+ *      responses:
+ *       200:
+ *         description: Reservaciones.
+*/
 reservationsApp.get('/', (_, res) => {
     var reservationsData = db.reservation.get.allReservations();
 
@@ -16,6 +26,29 @@ reservationsApp.get('/', (_, res) => {
 });
 
 // POST
+/**
+ * @swagger
+ * /reservations/:
+ *   post:
+ *     summary: Crea una nueva reservación.
+ *     responses:
+ *       200:
+ *         description: Creada. EL id se crea por si solo, el id de espacio se asigna automáticamente y la hora de llegada se oner por defecto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               license_plate:
+ *                 type: string
+ *                 description: placa del carro.
+ *                 example: wri-707
+ * 
+ * 
+ *         
+*/
 reservationsApp.post('/', (req, res) => {
     var reservationsData = db.reservation.get.allReservations();
 
@@ -48,6 +81,21 @@ reservationsApp.post('/', (req, res) => {
 });
 
 // DELETE by ID
+/**
+ * @swagger
+ * /reservations/{id}:
+ *   delete:
+ *     summary: Elimina una reservación
+ *     description: Por medio de un id elimina la reservación de la lista
+ * parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: id del espacio reservado
+ * responses:
+ *       200:
+ *         description: Reservación eliminada.
+*/
 reservationsApp.delete('/:id', (req, res) => {
     var reservationsData = db.reservation.get.allReservations();
 

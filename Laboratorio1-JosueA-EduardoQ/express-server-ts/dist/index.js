@@ -17,13 +17,13 @@ var options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Hello World',
-            version: '1.0.0',
+            title: 'Parqueo TEC',
+            version: '1.2',
         },
     },
     servers: [
         {
-            url: 'https://localhost:3000',
+            url: 'https://localhost:30007',
             description: 'Parqueo TEC',
         },
     ],
