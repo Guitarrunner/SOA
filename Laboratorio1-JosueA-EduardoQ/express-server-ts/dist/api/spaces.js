@@ -8,6 +8,14 @@ var dbSim_1 = __importDefault(require("../lib/dbSim"));
 var spacesApp = express_1.default();
 var lastId = dbSim_1.default.space.get.allSpaces().length;
 // GET
+// routes/users.js
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Retrieve a list of JSONPlaceholder users
+ *     description: Retrieve a list of users from JSONPlaceholder. Can be used to populate a list of fake users when prototyping or testing an API.
+*/
 spacesApp.get('/', function (req, res) {
     var spaceData = [];
     if (req.query['filter']) {
